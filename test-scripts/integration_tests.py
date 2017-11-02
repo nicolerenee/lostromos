@@ -141,10 +141,10 @@ class IntegrationTest(TestCase):
                 sleep(1)
                 attempts -= 1
             else:
-                self.assertIn("releases_managed_total {}".format(managed), metrics)
-                self.assertIn("releases_created_total {}".format(created), metrics)
-                self.assertIn("releases_deleted_total {}".format(deleted), metrics)
-                self.assertIn("releases_updated_total {}".format(updated), metrics)
+                self.assertIn("releases_total {}".format(managed), metrics)
+                self.assertIn("releases_create_total {}".format(created), metrics)
+                self.assertIn("releases_delete_total {}".format(deleted), metrics)
+                self.assertIn("releases_update_total {}".format(updated), metrics)
                 return
         raise AssertionError("Failed to see the expected number of events. {}".format(metrics))
 
