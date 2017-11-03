@@ -14,14 +14,14 @@
 
 package version
 
+import "go.uber.org/zap"
+
 func ExamplePrint() {
 	Version = "1"
 	GitHash = "abc123"
 	BuildTime = "Some point in time"
 
-	Print()
+	Print(zap.NewExample().Sugar())
 	// Output:
-	// Version: 1
-	// Git Commit Hash: abc123
-	// Build Time: Some point in time
+	// {"level":"info","msg":"version info","version":"1","gitCommitHash":"abc123","buildTime":"Some point in time"}
 }

@@ -27,6 +27,8 @@ import (
 	"github.com/wpengine/lostromos/helmctlr"
 	"github.com/wpengine/lostromos/status"
 	"github.com/wpengine/lostromos/tmplctlr"
+	"github.com/wpengine/lostromos/version"
+	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	restclient "k8s.io/client-go/rest"
@@ -108,9 +110,11 @@ func buildCRWatcher(cfg *restclient.Config) *crwatcher.CRWatcher {
 		Namespace:  viper.GetString("crd.namespace"),
 	}
 
+	l := &crError{logger: logger}
+
 	ctlr := getController()
 
-	crw, err := crwatcher.NewCRWatcher(cwCfg, cfg, ctlr)
+	crw, err := crwatcher.NewCRWatcher(cwCfg, cfg, ctlr, l)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -123,12 +127,21 @@ func getController() crwatcher.ResourceController {
 		hns := viper.GetString("helm.namespace")
 		hrn := viper.GetString("helm.releasePrefix")
 		ht := viper.GetString("helm.tiller")
-		return helmctlr.NewController(chrt, hns, hrn, ht, nil)
+		return helmctlr.NewController(chrt, hns, hrn, ht, logger)
 	}
-	return tmplctlr.NewController(viper.GetString("templates"), viper.GetString("k8s.config"))
+	return tmplctlr.NewController(viper.GetString("templates"), viper.GetString("k8s.config"), logger)
+}
+
+type crError struct {
+	logger *zap.SugaredLogger
+}
+
+func (c crError) Error(err error) {
+	logger.Errorw("kubernetes error", "error", err)
 }
 
 func startServer() {
+	version.Print(logger)
 	cfg := getKubeClient()
 	crw := buildCRWatcher(cfg)
 

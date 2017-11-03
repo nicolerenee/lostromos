@@ -29,7 +29,7 @@ func TestNewCRWatcher(t *testing.T) {
 	kubeCfg := &restclient.Config{}
 	cfg := &Config{PluralName: "test"}
 
-	cw, err := NewCRWatcher(cfg, kubeCfg, printctlr.Controller{})
+	cw, err := NewCRWatcher(cfg, kubeCfg, printctlr.Controller{}, nil)
 
 	assert.Nil(t, err)
 	assert.Equal(t, cfg, cw.Config)
